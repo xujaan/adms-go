@@ -25,7 +25,7 @@
                     <td>{{or .Nama "-"}}</td>
                     <td>{{or .Lokasi "-"}}</td>
                     <td>{{call $.IsOnlineBadge .}}</td>
-                    <td>{{if .Online.Valid}}{{.Online.Time.Format "2006-01-02 15:04:05"}}{{else}}-{{end}}</td>
+                    <td>{{if .Online}}{{.Online.Format "2006-01-02 15:04:05"}}{{else}}-{{end}}</td>
                 </tr>
                 {{else}}
                 <tr>
