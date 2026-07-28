@@ -48,35 +48,36 @@ func main() {
 	log.Println("Database connected")
 
 	// Templates
-	tmpl, err := template.New("").
-		Funcs(template.FuncMap{
-			"or": func(a, b interface{}) interface{} {
-				if a == nil || a == "" {
-					return b
-				}
-				return a
-			},
-			"until": func(n int) []int {
-				out := make([]int, n)
-				for i := range out {
-					out[i] = i
-				}
-				return out
-			},
-			"add": func(a, b int) int { return a + b },
-			"sub": func(a, b int) int {
-				if a-b < 0 {
-					return 0
-				}
-				return a - b
-			},
-			"eq": func(a, b int) bool { return a == b },
-			"le": func(a, b int) bool { return a <= b },
-			"ge": func(a, b int) bool { return a >= b },
-		}).
-		ParseGlob("templates/*.html")
-	if err != nil {
-		log.Fatalf("templates: %v", err)
+	tmpl := template.New("").Funcs(template.FuncMap{
+		"or": func(a, b interface{}) interface{} {
+			if a == nil || a == "" {
+				return b
+			}
+			return a
+		},
+		"until": func(n int) []int {
+			out := make([]int, n)
+			for i := range out {
+				out[i] = i
+			}
+			return out
+		},
+		"add": func(a, b int) int { return a + b },
+		"sub": func(a, b int) int {
+			if a-b < 0 {
+				return 0
+			}
+			return a - b
+		},
+		"eq": func(a, b int) bool { return a == b },
+		"le": func(a, b int) bool { return a <= b },
+		"ge": func(a, b int) bool { return a >= b },
+	})
+
+	for _, pattern := range []string{"templates/*.html", "templates/*/*.html"} {
+		if _, err := tmpl.ParseGlob(pattern); err != nil {
+			log.Fatalf("templates %s: %v", pattern, err)
+		}
 	}
 
 	// Webhook dispatcher
