@@ -1,0 +1,41 @@
+{{define "content"}}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">{{.Title}}</h4>
+    <span class="text-muted small">Auto-refresh: 5 min</span>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>No SN</th>
+                    <th>Nama</th>
+                    <th>Lokasi</th>
+                    <th>Status</th>
+                    <th>Last Online</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Devices}}
+                <tr>
+                    <td>{{.ID}}</td>
+                    <td><code>{{.NoSN}}</code></td>
+                    <td>{{or .Nama "-"}}</td>
+                    <td>{{or .Lokasi "-"}}</td>
+                    <td>{{call $.IsOnlineBadge .}}</td>
+                    <td>{{if .Online}}{{.Online.Format "2006-01-02 15:04:05"}}{{else}}-{{end}}</td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No devices found.</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{template "pagination" .Page}}
+{{end}}

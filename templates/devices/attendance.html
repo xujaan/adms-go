@@ -1,0 +1,44 @@
+{{define "content"}}
+<h4 class="mb-3">{{.Title}}</h4>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover table-sm mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>SN</th>
+                    <th>Employee ID</th>
+                    <th>Timestamp</th>
+                    <th>S1</th>
+                    <th>S2</th>
+                    <th>S3</th>
+                    <th>S4</th>
+                    <th>S5</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Attendances}}
+                <tr>
+                    <td>{{.ID}}</td>
+                    <td><code>{{.SN}}</code></td>
+                    <td>{{.EmployeeID}}</td>
+                    <td>{{.Timestamp.Format "2006-01-02 15:04:05"}}</td>
+                    <td>{{if .Status1}}{{.Status1}}{{else}}-{{end}}</td>
+                    <td>{{if .Status2}}{{.Status2}}{{else}}-{{end}}</td>
+                    <td>{{if .Status3}}{{.Status3}}{{else}}-{{end}}</td>
+                    <td>{{if .Status4}}{{.Status4}}{{else}}-{{end}}</td>
+                    <td>{{if .Status5}}{{.Status5}}{{else}}-{{end}}</td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-4">No attendance records found.</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{template "pagination" .Page}}
+{{end}}
