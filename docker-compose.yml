@@ -9,5 +9,5 @@ services:
     environment:
       - PORT=8000
       - TZ=Asia/Jakarta
-      - DB_ADMS_DSN=root:@tcp(mariadb:3306)/java_adms?parseTime=true&loc=Asia%2FJakarta
+      - DB_ADMS_DSN=root:@tcp(mariadb:3306)/java_adms?parseTime=true
     restart: unless-stopped
