@@ -6,8 +6,6 @@ services:
     container_name: adms-go
     ports:
       - "8000:8000"
-    environment:
-      - PORT=8000
-      - TZ=Asia/Jakarta
-      - DB_ADMS_DSN=root:@tcp(mariadb:3306)/java_adms?parseTime=true
+    env_file:
+      - .env
     restart: unless-stopped
