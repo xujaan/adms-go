@@ -111,7 +111,7 @@ func (s *Store) CountAttendances() (int, error) {
 func (s *Store) InsertAttendance(att *Attendance) error {
 	result, err := s.Adms.Exec(
 		"INSERT INTO attendances (sn, `table`, stamp, employee_id, timestamp, status1, status2, status3, status4, status5, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
-		att.SN, att.TableName, att.Stamp, att.EmployeeID, att.Timestamp, att.Status1, att.Status2, att.Status3, att.Status4, att.Status5)
+		att.SN, att.TableName, att.Stamp, att.EmployeeID, att.Timestamp.Time, att.Status1, att.Status2, att.Status3, att.Status4, att.Status5)
 	if err != nil {
 		return err
 	}

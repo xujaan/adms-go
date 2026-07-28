@@ -137,7 +137,7 @@ func (h *IClockHandler) ReceiveRecords(w http.ResponseWriter, r *http.Request) {
 		// Webhook: attendance event
 		h.Dispatcher.Dispatch("attendance", sn, map[string]interface{}{
 			"employee_id":          att.EmployeeID,
-			"attendance_timestamp": att.Timestamp.Format("2006-01-02 15:04:05"),
+			"attendance_timestamp": att.Timestamp.Time.Format("2006-01-02 15:04:05"),
 			"status1":              att.Status1,
 			"status2":              att.Status2,
 			"status3":              att.Status3,
@@ -201,7 +201,7 @@ func parseAttendanceRecord(rec iclock.Record, sn, table, stamp string) (*store.A
 		TableName:  table,
 		Stamp:      stamp,
 		EmployeeID: employeeID,
-		Timestamp:  ts,
+		Timestamp:  store.NullTime{Time: ts, Valid: true},
 		Status1:    parseIntOrNil(rec.Status1),
 		Status2:    parseIntOrNil(rec.Status2),
 		Status3:    parseIntOrNil(rec.Status3),

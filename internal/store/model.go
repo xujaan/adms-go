@@ -2,44 +2,79 @@ package store
 
 import "time"
 
+// NullTime handles MySQL nullable datetime. Use it for columns that may be NULL
+// and may arrive as []uint8 when parseTime is disabled in DSN.
+type NullTime struct {
+	Time  time.Time
+	Valid bool
+}
+
+// Scan implements sql.Scanner — handles nil, time.Time, []uint8, string
+func (nt *NullTime) Scan(value interface{}) error {
+	if value == nil {
+		nt.Valid = false
+		return nil
+	}
+	switch v := value.(type) {
+	case time.Time:
+		nt.Time = v
+		nt.Valid = true
+	case []uint8:
+		t, err := time.ParseInLocation("2006-01-02 15:04:05", string(v), time.Local)
+		if err != nil {
+			return err
+		}
+		nt.Time = t
+		nt.Valid = true
+	case string:
+		t, err := time.ParseInLocation("2006-01-02 15:04:05", v, time.Local)
+		if err != nil {
+			return err
+		}
+		nt.Time = t
+		nt.Valid = true
+	}
+	return nil
+}
+
 // Device represents a ZKTeco device
 type Device struct {
-	ID        int64      `db:"id"`
-	Nama      *string    `db:"nama"`
-	NoSN      string     `db:"no_sn"`
-	Lokasi    *string    `db:"lokasi"`
-	Online    *time.Time `db:"online"`
-	CreatedAt time.Time  `db:"created_at"`
-	UpdatedAt time.Time  `db:"updated_at"`
+	ID        int64    `db:"id"`
+	Nama      *string  `db:"nama"`
+	NoSN      string   `db:"no_sn"`
+	Lokasi    *string  `db:"lokasi"`
+	Online    NullTime `db:"online"`
+	CreatedAt NullTime `db:"created_at"`
+	UpdatedAt NullTime `db:"updated_at"`
 }
 
 // IsOnline checks if device was active within last 5 minutes
 func (d Device) IsOnline() bool {
-	if d.Online == nil {
+	if !d.Online.Valid || d.Online.Time.IsZero() {
 		return false
 	}
-	return d.Online.After(time.Now().Add(-5 * time.Minute))
+	return d.Online.Time.After(time.Now().Add(-5 * time.Minute))
 }
 
 // DeviceLog represents a raw handshake request log
 type DeviceLog struct {
-	ID        int64     `db:"id"`
-	Data      string    `db:"data"`
-	Tgl       *string   `db:"tgl"`
-	SN        string    `db:"sn"`
-	Option    *string   `db:"option"`
-	URL       *string   `db:"url"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID        int64    `db:"id"`
+	Data      string   `db:"data"`
+	Tgl       *string  `db:"tgl"`
+	SN        string   `db:"sn"`
+	Option    *string  `db:"option"`
+	URL       *string  `db:"url"`
+	CreatedAt NullTime `db:"created_at"`
+	UpdatedAt NullTime `db:"updated_at"`
 }
 
 // FingerLog represents a raw attendance payload log
 type FingerLog struct {
-	ID        int64     `db:"id"`
-	Data      string    `db:"data"`
-	URL       string    `db:"url"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID        int64    `db:"id"`
+	Data      string   `db:"data"`
+	URL       string   `db:"url"`
+	CreatedAt NullTime `db:"created_at"`
+	UpdatedAt NullTime `db:"updated_at"`
 }
 
 // ErrorLog represents a processing error
@@ -52,19 +87,19 @@ type ErrorLog struct {
 
 // Attendance represents a parsed attendance record
 type Attendance struct {
-	ID         int64      `db:"id"`
-	SN         string     `db:"sn"`
-	TableName  string     `db:"table"`
-	Stamp      string     `db:"stamp"`
-	EmployeeID int        `db:"employee_id"`
-	Timestamp  time.Time  `db:"timestamp"`
-	Status1    *int       `db:"status1"`
-	Status2    *int       `db:"status2"`
-	Status3    *int       `db:"status3"`
-	Status4    *int       `db:"status4"`
-	Status5    *int       `db:"status5"`
-	CreatedAt  *time.Time `db:"created_at"`
-	UpdatedAt  *time.Time `db:"updated_at"`
+	ID         int64    `db:"id"`
+	SN         string   `db:"sn"`
+	TableName  string   `db:"table"`
+	Stamp      string   `db:"stamp"`
+	EmployeeID int      `db:"employee_id"`
+	Timestamp  NullTime `db:"timestamp"`
+	Status1    *int     `db:"status1"`
+	Status2    *int     `db:"status2"`
+	Status3    *int     `db:"status3"`
+	Status4    *int     `db:"status4"`
+	Status5    *int     `db:"status5"`
+	CreatedAt  NullTime `db:"created_at"`
+	UpdatedAt  NullTime `db:"updated_at"`
 }
 
 // Webhook represents a webhook subscription

@@ -23,7 +23,7 @@
                     <td>{{.ID}}</td>
                     <td><code>{{.SN}}</code></td>
                     <td>{{.EmployeeID}}</td>
-                    <td>{{.Timestamp.Format "2006-01-02 15:04:05"}}</td>
+                    <td>{{if .Timestamp.Valid}}{{.Timestamp.Time.Format "2006-01-02 15:04:05"}}{{else}}-{{end}}</td>
                     <td>{{if .Status1}}{{.Status1}}{{else}}-{{end}}</td>
                     <td>{{if .Status2}}{{.Status2}}{{else}}-{{end}}</td>
                     <td>{{if .Status3}}{{.Status3}}{{else}}-{{end}}</td>

@@ -4,7 +4,7 @@
 {{range .Logs}}
 <div class="card mb-2">
     <div class="card-header py-2">
-        <small class="text-muted">#{{.ID}} — {{.CreatedAt.Format "2006-01-02 15:04:05"}}</small>
+        <small class="text-muted">#{{.ID}} — {{if .CreatedAt.Valid}}{{.CreatedAt.Time.Format "2006-01-02 15:04:05"}}{{else}}-{{end}}</small>
         {{if .SN}}<span class="badge bg-info ms-2">{{.SN}}</span>{{end}}
         {{if .Option}}<span class="badge bg-secondary">{{.Option}}</span>{{end}}
     </div>
