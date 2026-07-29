@@ -47,7 +47,7 @@ func (h *DashboardHandler) Devices(w http.ResponseWriter, r *http.Request) {
 			return `<span class="badge bg-secondary">Offline</span>`
 		},
 	}
-	if err := h.Template.ExecuteTemplate(w, "devices_index.html", data); err != nil {
+	if err := h.Template.ExecuteTemplate(w, "layout.html", data); err != nil {
 		log.Printf("template: %v", err)
 	}
 }
