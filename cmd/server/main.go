@@ -134,6 +134,7 @@ func main() {
 		r.Get("/devices", dashH.Devices)
 		r.Get("/devices-log", dashH.DeviceLog)
 		r.Get("/finger-log", dashH.FingerLog)
+		r.Get("/webhooks", dashH.Webhooks)
 		r.Get("/attendance", dashH.Attendance)
 
 		// Webhook API routes

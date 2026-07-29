@@ -34,13 +34,13 @@ func (h *DashboardHandler) Devices(w http.ResponseWriter, r *http.Request) {
 		"Active":   "devices",
 		"Devices":  devices,
 		"Page":     store.CalcPage(page, total),
-		"IsOnline": func(d store.Device) string {
+		"IsOnline": func(d store.Device) template.HTML {
 			if d.IsOnline() {
 				return "Online"
 			}
 			return "Offline"
 		},
-		"IsOnlineBadge": func(d store.Device) string {
+		"IsOnlineBadge": func(d store.Device) template.HTML {
 			if d.IsOnline() {
 				return `<span class="badge bg-success">Online</span>`
 			}
@@ -128,4 +128,15 @@ func queryInt(r *http.Request, key string, defaultVal int) int {
 		return defaultVal
 	}
 	return n
+}
+
+// Webhooks handles GET /webhooks
+func (h *DashboardHandler) Webhooks(w http.ResponseWriter, r *http.Request) {
+	data := map[string]interface{}{
+		"Title":  "Webhooks",
+		"Active": "webhooks",
+	}
+	if err := h.Template.ExecuteTemplate(w, "webhooks", data); err != nil {
+		log.Printf("template: %v", err)
+	}
 }
