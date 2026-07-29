@@ -89,7 +89,7 @@ func main() {
 		"ge": func(a, b int) bool { return a >= b },
 	})
 
-	for _, pattern := range []string{"templates/*.html", "templates/*/*.html"} {
+	for _, pattern := range []string{"templates/*.html"} {
 		if _, err := tmpl.ParseGlob(pattern); err != nil {
 			log.Fatalf("templates %s: %v", pattern, err)
 		}
