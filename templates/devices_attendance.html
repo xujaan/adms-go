@@ -26,6 +26,7 @@
                     <li class="nav-item"><a class="nav-link active" href="/attendance">Attendance</a></li>
                     <li class="nav-item"><a class="nav-link" href="/devices-log">Device Log</a></li>
                     <li class="nav-item"><a class="nav-link" href="/finger-log">Finger Log</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/webhooks">Webhooks</a></li>
                     <li class="nav-item"><a class="nav-link text-danger" href="/logout">Logout</a></li>
                 </ul>
             </div>
@@ -33,7 +34,32 @@
     </nav>
 
     <div class="container">
-        <h4 class="mb-3">{{.Title}}</h4>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0">{{.Title}}</h4>
+        </div>
+
+        <!-- Filter -->
+        <form class="row g-2 mb-3" method="GET" action="/attendance">
+            <div class="col-auto">
+                <select name="sn" class="form-select form-select-sm" style="min-width:140px">
+                    <option value="">All Devices</option>
+                    {{range .Devices}}
+                    <option value="{{.NoSN}}" {{if eq .NoSN $.Filters.sn}}selected{{end}}>{{.NoSN}}</option>
+                    {{end}}
+                </select>
+            </div>
+            <div class="col-auto">
+                <input type="date" name="start" class="form-control form-control-sm" value="{{.Filters.start}}" placeholder="Start">
+            </div>
+            <div class="col-auto">
+                <input type="date" name="end" class="form-control form-control-sm" value="{{.Filters.end}}" placeholder="End">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                <a href="/attendance" class="btn btn-secondary btn-sm">Clear</a>
+            </div>
+        </form>
+
         <div class="card">
             <div class="card-body p-0">
                 <table class="table table-hover table-sm mb-0">

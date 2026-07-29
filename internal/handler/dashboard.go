@@ -18,7 +18,6 @@ func NewDashboardHandler(s *store.Store, t *template.Template) *DashboardHandler
 	return &DashboardHandler{Store: s, Template: t}
 }
 
-// Devices handles GET /devices
 func (h *DashboardHandler) Devices(w http.ResponseWriter, r *http.Request) {
 	page := queryInt(r, "page", 1)
 	devices, err := h.Store.GetDevices(page)
@@ -30,11 +29,11 @@ func (h *DashboardHandler) Devices(w http.ResponseWriter, r *http.Request) {
 	total, _ := h.Store.CountDevices()
 
 	data := map[string]interface{}{
-		"Title":    "Devices",
-		"Active":   "devices",
-		"Devices":  devices,
-		"Page":     store.CalcPage(page, total),
-		"IsOnline": func(d store.Device) template.HTML {
+		"Title":   "Devices",
+		"Active":  "devices",
+		"Devices": devices,
+		"Page":    store.CalcPage(page, total),
+		"IsOnline": func(d store.Device) string {
 			if d.IsOnline() {
 				return "Online"
 			}
@@ -47,12 +46,9 @@ func (h *DashboardHandler) Devices(w http.ResponseWriter, r *http.Request) {
 			return `<span class="badge bg-secondary">Offline</span>`
 		},
 	}
-	if err := h.Template.ExecuteTemplate(w, "devices_index", data); err != nil {
-		log.Printf("template: %v", err)
-	}
+	h.Template.ExecuteTemplate(w, "devices_index", data)
 }
 
-// DeviceLog handles GET /devices-log
 func (h *DashboardHandler) DeviceLog(w http.ResponseWriter, r *http.Request) {
 	page := queryInt(r, "page", 1)
 	logs, err := h.Store.GetDeviceLogs(page)
@@ -69,12 +65,9 @@ func (h *DashboardHandler) DeviceLog(w http.ResponseWriter, r *http.Request) {
 		"Logs":   logs,
 		"Page":   store.CalcPage(page, total),
 	}
-	if err := h.Template.ExecuteTemplate(w, "devices_log", data); err != nil {
-		log.Printf("template: %v", err)
-	}
+	h.Template.ExecuteTemplate(w, "devices_log", data)
 }
 
-// FingerLog handles GET /finger-log
 func (h *DashboardHandler) FingerLog(w http.ResponseWriter, r *http.Request) {
 	page := queryInt(r, "page", 1)
 	logs, err := h.Store.GetFingerLogs(page)
@@ -91,31 +84,46 @@ func (h *DashboardHandler) FingerLog(w http.ResponseWriter, r *http.Request) {
 		"Logs":   logs,
 		"Page":   store.CalcPage(page, total),
 	}
-	if err := h.Template.ExecuteTemplate(w, "devices_log", data); err != nil {
-		log.Printf("template: %v", err)
-	}
+	h.Template.ExecuteTemplate(w, "finger_log", data)
 }
 
-// Attendance handles GET /attendance
 func (h *DashboardHandler) Attendance(w http.ResponseWriter, r *http.Request) {
 	page := queryInt(r, "page", 1)
-	atts, err := h.Store.GetAttendances(page)
+	sn := r.URL.Query().Get("sn")
+	start := r.URL.Query().Get("start")
+	end := r.URL.Query().Get("end")
+
+	atts, err := h.Store.GetAttendances(sn, start, end, page)
 	if err != nil {
 		log.Printf("attendances query: %v", err)
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
-	total, _ := h.Store.CountAttendances()
+	total, _ := h.Store.CountAttendances(sn, start, end)
+
+	devices, _ := h.Store.GetDeviceList()
 
 	data := map[string]interface{}{
 		"Title":       "Attendance",
 		"Active":      "attendance",
 		"Attendances": atts,
+		"Devices":     devices,
 		"Page":        store.CalcPage(page, total),
+		"Filters": map[string]string{
+			"sn":    sn,
+			"start": start,
+			"end":   end,
+		},
 	}
-	if err := h.Template.ExecuteTemplate(w, "devices_attendance", data); err != nil {
-		log.Printf("template: %v", err)
+	h.Template.ExecuteTemplate(w, "devices_attendance", data)
+}
+
+func (h *DashboardHandler) Webhooks(w http.ResponseWriter, r *http.Request) {
+	data := map[string]interface{}{
+		"Title":  "Webhooks",
+		"Active": "webhooks",
 	}
+	h.Template.ExecuteTemplate(w, "webhooks", data)
 }
 
 func queryInt(r *http.Request, key string, defaultVal int) int {
@@ -128,15 +136,4 @@ func queryInt(r *http.Request, key string, defaultVal int) int {
 		return defaultVal
 	}
 	return n
-}
-
-// Webhooks handles GET /webhooks
-func (h *DashboardHandler) Webhooks(w http.ResponseWriter, r *http.Request) {
-	data := map[string]interface{}{
-		"Title":  "Webhooks",
-		"Active": "webhooks",
-	}
-	if err := h.Template.ExecuteTemplate(w, "webhooks", data); err != nil {
-		log.Printf("template: %v", err)
-	}
 }

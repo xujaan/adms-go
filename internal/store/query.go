@@ -93,19 +93,59 @@ func (s *Store) InsertErrorLog(data string) error {
 
 // ─── Attendance queries ──────────────────────────────────────────
 
-func (s *Store) GetAttendances(page int) ([]Attendance, error) {
+func (s *Store) GetAttendances(sn, start, end string, page int) ([]Attendance, error) {
 	offset := (page - 1) * 15
 	var atts []Attendance
-	err := s.Adms.Select(&atts,
-		"SELECT id, sn, `table`, stamp, employee_id, timestamp, status1, status2, status3, status4, status5, created_at, updated_at FROM attendances ORDER BY id DESC LIMIT 15 OFFSET ?",
-		offset)
+	where := "1=1"
+	args := make([]interface{}, 0)
+
+	if sn != "" {
+		where += " AND sn = ?"
+		args = append(args, sn)
+	}
+	if start != "" {
+		where += " AND timestamp >= ?"
+		args = append(args, start)
+	}
+	if end != "" {
+		where += " AND timestamp <= ?"
+		args = append(args, end+" 23:59:59")
+	}
+
+	query := "SELECT id, sn, `table`, stamp, employee_id, timestamp, status1, status2, status3, status4, status5, created_at, updated_at FROM attendances WHERE " + where + " ORDER BY id DESC LIMIT 15 OFFSET ?"
+	args = append(args, offset)
+
+	err := s.Adms.Select(&atts, query, args...)
 	return atts, err
 }
 
-func (s *Store) CountAttendances() (int, error) {
+func (s *Store) CountAttendances(sn, start, end string) (int, error) {
 	var count int
-	err := s.Adms.Get(&count, "SELECT COUNT(*) FROM attendances")
+	where := "1=1"
+	args := make([]interface{}, 0)
+
+	if sn != "" {
+		where += " AND sn = ?"
+		args = append(args, sn)
+	}
+	if start != "" {
+		where += " AND timestamp >= ?"
+		args = append(args, start)
+	}
+	if end != "" {
+		where += " AND timestamp <= ?"
+		args = append(args, end+" 23:59:59")
+	}
+
+	err := s.Adms.Get(&count, "SELECT COUNT(*) FROM attendances WHERE "+where, args...)
 	return count, err
+}
+
+// GetDeviceList returns all devices for filter dropdown
+func (s *Store) GetDeviceList() ([]Device, error) {
+	var devices []Device
+	err := s.Adms.Select(&devices, "SELECT DISTINCT sn as no_sn FROM attendances ORDER BY sn")
+	return devices, err
 }
 
 func (s *Store) InsertAttendance(att *Attendance) error {
