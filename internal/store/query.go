@@ -213,6 +213,12 @@ type PageInfo struct {
 	HasNext     bool
 	PrevPage    int
 	NextPage    int
+	Pages       []PageNum
+}
+
+type PageNum struct {
+	Num     int
+	Current bool
 }
 
 func CalcPage(page, total int) PageInfo {
@@ -223,6 +229,12 @@ func CalcPage(page, total int) PageInfo {
 	if totalPages < 1 {
 		totalPages = 1
 	}
+
+	pages := make([]PageNum, totalPages)
+	for i := 0; i < totalPages; i++ {
+		pages[i] = PageNum{Num: i + 1, Current: i+1 == page}
+	}
+
 	return PageInfo{
 		CurrentPage: page,
 		TotalPages:  totalPages,
@@ -230,5 +242,6 @@ func CalcPage(page, total int) PageInfo {
 		HasNext:     page < totalPages,
 		PrevPage:    page - 1,
 		NextPage:    page + 1,
+		Pages:       pages,
 	}
 }
