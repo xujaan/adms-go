@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    build: .
+    image: adms-go
     container_name: adms-go
     ports:
       - "8000:8000"
