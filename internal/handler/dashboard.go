@@ -47,7 +47,7 @@ func (h *DashboardHandler) Devices(w http.ResponseWriter, r *http.Request) {
 			return `<span class="badge bg-secondary">Offline</span>`
 		},
 	}
-	if err := h.Template.ExecuteTemplate(w, "layout.html", data); err != nil {
+	if err := h.Template.ExecuteTemplate(w, "devices_index", data); err != nil {
 		log.Printf("template: %v", err)
 	}
 }
@@ -69,7 +69,7 @@ func (h *DashboardHandler) DeviceLog(w http.ResponseWriter, r *http.Request) {
 		"Logs":   logs,
 		"Page":   store.CalcPage(page, total),
 	}
-	if err := h.Template.ExecuteTemplate(w, "devices_log.html", data); err != nil {
+	if err := h.Template.ExecuteTemplate(w, "devices_log", data); err != nil {
 		log.Printf("template: %v", err)
 	}
 }
@@ -91,7 +91,7 @@ func (h *DashboardHandler) FingerLog(w http.ResponseWriter, r *http.Request) {
 		"Logs":   logs,
 		"Page":   store.CalcPage(page, total),
 	}
-	if err := h.Template.ExecuteTemplate(w, "devices_log.html", data); err != nil {
+	if err := h.Template.ExecuteTemplate(w, "devices_log", data); err != nil {
 		log.Printf("template: %v", err)
 	}
 }
@@ -113,7 +113,7 @@ func (h *DashboardHandler) Attendance(w http.ResponseWriter, r *http.Request) {
 		"Attendances": atts,
 		"Page":        store.CalcPage(page, total),
 	}
-	if err := h.Template.ExecuteTemplate(w, "devices_attendance.html", data); err != nil {
+	if err := h.Template.ExecuteTemplate(w, "devices_attendance", data); err != nil {
 		log.Printf("template: %v", err)
 	}
 }
