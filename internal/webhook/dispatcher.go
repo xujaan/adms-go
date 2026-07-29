@@ -46,7 +46,7 @@ func (d *Dispatcher) Dispatch(event, deviceSN string, data interface{}) {
 	for _, wh := range whs {
 		wh := wh // capture
 		go func() {
-			Send(wh.URL, payload)
+			Send(wh.URL, payload, wh.Headers)
 		}()
 	}
 }

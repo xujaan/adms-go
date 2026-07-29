@@ -69,14 +69,15 @@ type Attendance struct {
 
 // Webhook represents a webhook subscription
 type Webhook struct {
-	ID        int64     `db:"id"`
-	DeviceSN  string    `db:"device_sn"`
-	Name      string    `db:"name"`
-	URL       string    `db:"url"`
-	Event     string    `db:"event"`
-	IsActive  bool      `db:"is_active"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID        int64     `db:"id"          json:"id"`
+	DeviceSN  string    `db:"device_sn"   json:"device_sn"`
+	Name      string    `db:"name"        json:"name"`
+	URL       string    `db:"url"         json:"url"`
+	Event     string    `db:"event"       json:"event"`
+	Headers   string    `db:"headers"     json:"headers"`
+	IsActive  bool      `db:"is_active"   json:"is_active"`
+	CreatedAt time.Time `db:"created_at"  json:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"  json:"updated_at"`
 }
 
 // HandshakeConfig represents per-device handshake configuration

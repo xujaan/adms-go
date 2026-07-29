@@ -5,14 +5,14 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
-// retryDelays for 3 retry attempts
 var retryDelays = []time.Duration{1 * time.Second, 5 * time.Second, 25 * time.Second}
 
-// Send posts JSON payload to webhook URL with 3x retry
-func Send(url string, payload interface{}) {
+// Send posts JSON payload to webhook URL with optional custom headers and 3x retry
+func Send(url string, payload interface{}, headers string) {
 	body, err := json.Marshal(payload)
 	if err != nil {
 		log.Printf("webhook marshal: %v", err)
@@ -26,7 +26,35 @@ func Send(url string, payload interface{}) {
 			time.Sleep(delay)
 		}
 
-		resp, err := http.Post(url, "application/json", bytes.NewReader(body))
+		req, err := http.NewRequest("POST", url, bytes.NewReader(body))
+		if err != nil {
+			log.Printf("webhook attempt %d failed (request): %v", attempt+1, err)
+			continue
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		// Parse custom headers (key:value per line, or key=value)
+		for _, line := range strings.Split(headers, "\n") {
+			line = strings.TrimSpace(line)
+			if line == "" {
+				continue
+			}
+			var k, v string
+			if idx := strings.Index(line, ":"); idx >= 0 {
+				k = strings.TrimSpace(line[:idx])
+				v = strings.TrimSpace(line[idx+1:])
+			} else if idx := strings.Index(line, "="); idx >= 0 {
+				k = strings.TrimSpace(line[:idx])
+				v = strings.TrimSpace(line[idx+1:])
+			} else {
+				continue
+			}
+			if k != "" && v != "" {
+				req.Header.Set(k, v)
+			}
+		}
+
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			log.Printf("webhook attempt %d failed (http): %v", attempt+1, err)
 			continue

@@ -66,6 +66,7 @@
                     <div class="mb-2"><label class="form-label small">Device SN <span class="text-muted">(empty=global)</span></label><input id="wh-device" class="form-control form-control-sm" placeholder="e.g. ABC123 or leave blank"></div>
                     <div class="mb-2"><label class="form-label small">Name</label><input id="wh-name" class="form-control form-control-sm" placeholder="e.g. Sync Prod"></div>
                     <div class="mb-2"><label class="form-label small">URL</label><input id="wh-url" class="form-control form-control-sm" placeholder="https://..."></div>
+                    <div class="mb-2"><label class="form-label small">Custom Headers <span class="text-muted">(key:value, one per line)</span></label><textarea id="wh-headers" class="form-control form-control-sm" rows="2" placeholder="Authorization: Bearer xxx"></textarea></div>
                     <div class="mb-2"><label class="form-label small">Event</label>
                         <select id="wh-event" class="form-select form-select-sm">
                             <option value="attendance">attendance</option>
@@ -116,11 +117,12 @@
                     device_sn: $('#wh-device').val(),
                     name: $('#wh-name').val(),
                     url: $('#wh-url').val(),
-                    event: $('#wh-event').val()
+                    event: $('#wh-event').val(),
+                    headers: $('#wh-headers').val()
                 }),
                 success: function() {
                     $('#addModal').modal('hide');
-                    $('#wh-device,#wh-name,#wh-url').val('');
+                    $('#wh-device,#wh-name,#wh-url,#wh-headers').val('');
                     loadWebhooks();
                 },
                 error: function(xhr) {

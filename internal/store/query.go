@@ -158,7 +158,7 @@ func (s *Store) GetWebhooks(event, deviceSN string) ([]Webhook, error) {
 	var whs []Webhook
 	// Match: (global webhooks with device_sn='') OR (device-specific webhooks)
 	err := s.Adms.Select(&whs,
-		"SELECT id, device_sn, name, url, event, is_active, created_at, updated_at FROM webhooks WHERE event = ? AND (device_sn = ? OR device_sn = '') AND is_active = 1",
+		"SELECT id, device_sn, name, url, COALESCE(headers,'') as headers, event, is_active, created_at, updated_at FROM webhooks WHERE event = ? AND (device_sn = ? OR device_sn = '') AND is_active = 1",
 		event, deviceSN)
 	return whs, err
 }
@@ -167,17 +167,17 @@ func (s *Store) GetAllWebhooks(deviceSN string) ([]Webhook, error) {
 	var whs []Webhook
 	var err error
 	if deviceSN == "" {
-		err = s.Adms.Select(&whs, "SELECT id, device_sn, name, url, event, is_active, created_at, updated_at FROM webhooks ORDER BY device_sn, event")
+		err = s.Adms.Select(&whs, "SELECT id, device_sn, name, url, COALESCE(headers,'') as headers, event, is_active, created_at, updated_at FROM webhooks ORDER BY device_sn, event")
 	} else {
-		err = s.Adms.Select(&whs, "SELECT id, device_sn, name, url, event, is_active, created_at, updated_at FROM webhooks WHERE device_sn = ? OR device_sn = '' ORDER BY device_sn, event", deviceSN)
+		err = s.Adms.Select(&whs, "SELECT id, device_sn, name, url, COALESCE(headers,'') as headers, event, is_active, created_at, updated_at FROM webhooks WHERE device_sn = ? OR device_sn = '' ORDER BY device_sn, event", deviceSN)
 	}
 	return whs, err
 }
 
 func (s *Store) CreateWebhook(w *Webhook) error {
 	result, err := s.Adms.Exec(
-		"INSERT INTO webhooks (device_sn, name, url, event, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())",
-		w.DeviceSN, w.Name, w.URL, w.Event, w.IsActive)
+		"INSERT INTO webhooks (device_sn, name, url, headers, event, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())",
+		w.DeviceSN, w.Name, w.URL, w.Headers, w.Event, w.IsActive)
 	if err != nil {
 		return err
 	}

@@ -12,7 +12,6 @@ type WebhookHandler struct {
 	Store *store.Store
 }
 
-// ListWebhooks handles GET /api/webhooks?device_sn=X
 func (h *WebhookHandler) ListWebhooks(w http.ResponseWriter, r *http.Request) {
 	deviceSN := r.URL.Query().Get("device_sn")
 	whs, err := h.Store.GetAllWebhooks(deviceSN)
@@ -23,13 +22,13 @@ func (h *WebhookHandler) ListWebhooks(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]interface{}{"webhooks": whs})
 }
 
-// CreateWebhook handles POST /api/webhooks
 func (h *WebhookHandler) CreateWebhook(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		DeviceSN string `json:"device_sn"`
 		Name     string `json:"name"`
 		URL      string `json:"url"`
 		Event    string `json:"event"`
+		Headers  string `json:"headers"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -46,6 +45,7 @@ func (h *WebhookHandler) CreateWebhook(w http.ResponseWriter, r *http.Request) {
 		Name:     input.Name,
 		URL:      input.URL,
 		Event:    input.Event,
+		Headers:  input.Headers,
 		IsActive: true,
 	}
 
@@ -57,7 +57,6 @@ func (h *WebhookHandler) CreateWebhook(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 201, wh)
 }
 
-// DeleteWebhook handles DELETE /api/webhooks/{id}
 func (h *WebhookHandler) DeleteWebhook(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
