@@ -230,9 +230,39 @@ func CalcPage(page, total int) PageInfo {
 		totalPages = 1
 	}
 
-	pages := make([]PageNum, totalPages)
-	for i := 0; i < totalPages; i++ {
-		pages[i] = PageNum{Num: i + 1, Current: i+1 == page}
+	var pages []PageNum
+	add := func(n int, cur bool) {
+		pages = append(pages, PageNum{Num: n, Current: cur})
+	}
+	addDots := func() { pages = append(pages, PageNum{Num: -1}) }
+
+	// Build window: first, last, +-2 around current
+	windowStart := page - 2
+	if windowStart < 1 {
+		windowStart = 1
+	}
+	windowEnd := page + 2
+	if windowEnd > totalPages {
+		windowEnd = totalPages
+	}
+
+	shown := make(map[int]bool)
+	shown[1] = true
+	shown[totalPages] = true
+	for i := windowStart; i <= windowEnd; i++ {
+		shown[i] = true
+	}
+
+	prev := 0
+	for i := 1; i <= totalPages; i++ {
+		if !shown[i] {
+			continue
+		}
+		if prev > 0 && i > prev+1 {
+			addDots()
+		}
+		add(i, i == page)
+		prev = i
 	}
 
 	return PageInfo{
