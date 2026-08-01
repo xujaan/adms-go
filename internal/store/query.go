@@ -144,7 +144,7 @@ func (s *Store) CountAttendances(sn, start, end string) (int, error) {
 // GetDeviceList returns all devices for filter dropdown
 func (s *Store) GetDeviceList() ([]Device, error) {
 	var devices []Device
-	err := s.Adms.Select(&devices, "SELECT DISTINCT sn as no_sn FROM attendances ORDER BY sn")
+	err := s.Adms.Select(&devices, "SELECT id, nama, no_sn, lokasi, online, created_at, updated_at FROM devices ORDER BY no_sn")
 	return devices, err
 }
 

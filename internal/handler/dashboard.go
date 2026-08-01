@@ -101,7 +101,11 @@ func (h *DashboardHandler) Attendance(w http.ResponseWriter, r *http.Request) {
 	}
 	total, _ := h.Store.CountAttendances(sn, start, end)
 
-	devices, _ := h.Store.GetDeviceList()
+	devices, err := h.Store.GetDeviceList()
+	if err != nil {
+		log.Printf("device list query: %v", err)
+		devices = []store.Device{}
+	}
 
 	data := map[string]interface{}{
 		"Title":       "Attendance",
