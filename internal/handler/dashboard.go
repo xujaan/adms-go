@@ -115,7 +115,9 @@ func (h *DashboardHandler) Attendance(w http.ResponseWriter, r *http.Request) {
 			"end":   end,
 		},
 	}
-	h.Template.ExecuteTemplate(w, "devices_attendance", data)
+	if err := h.Template.ExecuteTemplate(w, "devices_attendance", data); err != nil {
+		log.Printf("template devices_attendance: %v", err)
+	}
 }
 
 func (h *DashboardHandler) Webhooks(w http.ResponseWriter, r *http.Request) {

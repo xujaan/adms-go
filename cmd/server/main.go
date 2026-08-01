@@ -84,7 +84,7 @@ func main() {
 			}
 			return a - b
 		},
-		"eq": func(a, b int) bool { return a == b },
+		"eq": func(a, b interface{}) bool { return a == b },
 		"le": func(a, b int) bool { return a <= b },
 		"ge": func(a, b int) bool { return a >= b },
 	})
