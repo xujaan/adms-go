@@ -1,6 +1,7 @@
 package store
 
 import (
+	"log"
 )
 
 // ─── Device queries ──────────────────────────────────────────────
@@ -24,17 +25,25 @@ func (s *Store) UpsertDeviceOnline(sn string) (isNew bool, err error) {
 	// Check if device already exists
 	var count int
 	if err := s.Adms.Get(&count, "SELECT COUNT(*) FROM devices WHERE no_sn = ?", sn); err != nil {
+		log.Printf("store: upsert device %q SELECT error: %v", sn, err)
 		return false, err
 	}
 	isNew = count == 0
+	log.Printf("store: upsert device %q existing=%d isNew=%v", sn, count, isNew)
 
 	// Upsert: INSERT if new, UPDATE online if exists.
 	// IMPORTANT: requires UNIQUE index on no_sn column for ON DUPLICATE KEY to work.
 	// Run: ALTER TABLE devices ADD UNIQUE INDEX idx_no_sn (no_sn);
-	_, err = s.Adms.Exec(
+	result, err := s.Adms.Exec(
 		"INSERT INTO devices (no_sn, online, created_at, updated_at) VALUES (?, NOW(), NOW(), NOW()) ON DUPLICATE KEY UPDATE online = NOW(), updated_at = NOW()",
 		sn)
-	return isNew, err
+	if err != nil {
+		log.Printf("store: upsert device %q INSERT error: %v", sn, err)
+		return isNew, err
+	}
+	rows, _ := result.RowsAffected()
+	log.Printf("store: upsert device %q rowsAffected=%d", sn, rows)
+	return isNew, nil
 }
 
 // ─── Device log queries ──────────────────────────────────────────
@@ -58,6 +67,9 @@ func (s *Store) InsertDeviceLog(data string, sn string, option string, url strin
 	_, err := s.Adms.Exec(
 		"INSERT INTO device_log (data, sn, `option`, url) VALUES (?, ?, ?, ?)",
 		data, sn, option, url)
+	if err != nil {
+		log.Printf("store: insert device_log sn=%q error: %v", sn, err)
+	}
 	return err
 }
 
@@ -82,6 +94,9 @@ func (s *Store) InsertFingerLog(data string, url string) error {
 	_, err := s.Adms.Exec(
 		"INSERT INTO finger_log (data, url) VALUES (?, ?)",
 		data, url)
+	if err != nil {
+		log.Printf("store: insert finger_log error: %v", err)
+	}
 	return err
 }
 
@@ -156,10 +171,12 @@ func (s *Store) InsertAttendance(att *Attendance) error {
 		"INSERT INTO attendances (sn, `table`, stamp, employee_id, timestamp, status1, status2, status3, status4, status5, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
 		att.SN, att.TableName, att.Stamp, att.EmployeeID, att.Timestamp, att.Status1, att.Status2, att.Status3, att.Status4, att.Status5)
 	if err != nil {
+		log.Printf("store: insert attendance sn=%q emp=%d error: %v", att.SN, att.EmployeeID, err)
 		return err
 	}
 	id, _ := result.LastInsertId()
 	att.ID = id
+	log.Printf("store: insert attendance ok sn=%q emp=%d id=%d", att.SN, att.EmployeeID, id)
 	return nil
 }
 

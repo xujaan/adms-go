@@ -118,6 +118,12 @@ func main() {
 	fs := http.FileServer(http.Dir(staticDir))
 	// Serve /static/* files (custom.css, theme.js)
 	r.Get("/static/*", func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case strings.HasSuffix(r.URL.Path, ".css"):
+			w.Header().Set("Content-Type", "text/css; charset=utf-8")
+		case strings.HasSuffix(r.URL.Path, ".js"):
+			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		}
 		r.URL.Path = strings.TrimPrefix(r.URL.Path, "/static")
 		fs.ServeHTTP(w, r)
 	})
