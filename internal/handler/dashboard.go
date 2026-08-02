@@ -100,6 +100,7 @@ func (h *DashboardHandler) Attendance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	total, _ := h.Store.CountAttendances(sn, start, end)
+	log.Printf("attendance: sn=%q start=%q end=%q page=%d rows=%d total=%d", sn, start, end, page, len(atts), total)
 
 	devices, err := h.Store.GetDeviceList()
 	if err != nil {

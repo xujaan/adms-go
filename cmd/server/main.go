@@ -1,12 +1,12 @@
 package main
 
 import (
-	"embed"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"adms-go/internal/handler"
 	"adms-go/internal/middleware"
@@ -16,9 +16,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
 )
-
-//go:embed static/*
-var staticFS embed.FS
 
 type Config struct {
 	Port      string
@@ -115,7 +112,9 @@ func main() {
 	r.Use(chimw.RealIP)
 
 	// Static files
-	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
+	staticDir := filepath.Join(".", "static")
+	log.Printf("Serving static files from %s", staticDir)
+	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir(staticDir))))
 
 	// IClock routes — no middleware, no auth (ZKTeco devices)
 	r.Route("/iclock", func(r chi.Router) {

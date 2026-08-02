@@ -1,0 +1,43 @@
+/* ADMS — shared styles */
+:root { color-scheme: light dark; }
+
+[data-bs-theme="light"] {
+    --app-bg: #f8fafc;
+    --app-card: #ffffff;
+    --app-border: #e2e8f0;
+    --app-nav: #ffffff;
+    --app-pre-bg: #f1f5f9;
+    --app-pre-color: #334155;
+}
+
+[data-bs-theme="dark"] {
+    --app-bg: #000;
+    --app-card: #0a0a0a;
+    --app-border: #1a1a1a;
+    --app-nav: #000;
+    --app-pre-bg: #0a0a0a;
+    --app-pre-color: #e0e0e0;
+}
+
+body { background-color: var(--app-bg); }
+.card { background-color: var(--app-card); border-color: var(--app-border); }
+.table { --bs-table-bg: transparent; }
+.navbar { background-color: var(--app-nav) !important; border-bottom: 1px solid var(--app-border); }
+.page-link { background-color: var(--app-card); border-color: var(--app-border); }
+.page-link:hover { background-color: var(--app-border); }
+pre { background: var(--app-pre-bg); color: var(--app-pre-color); white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto; }
+
+.btn {
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.15);
+}
+.btn-sm { border-radius: 6px; }
+
+.login-card {
+    background-color: var(--app-card);
+    border: 1px solid var(--app-border);
+    max-width: 400px;
+    width: 100%;
+}
