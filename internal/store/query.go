@@ -21,27 +21,20 @@ func (s *Store) CountDevices() (int, error) {
 }
 
 func (s *Store) UpsertDeviceOnline(sn string) (isNew bool, err error) {
-	// Try UPDATE first — works without UNIQUE constraint
-	result, err := s.Adms.Exec(
-		"UPDATE devices SET online = NOW(), updated_at = NOW() WHERE no_sn = ?",
-		sn)
-	if err != nil {
+	// Check if device already exists
+	var count int
+	if err := s.Adms.Get(&count, "SELECT COUNT(*) FROM devices WHERE no_sn = ?", sn); err != nil {
 		return false, err
 	}
+	isNew = count == 0
 
-	rows, _ := result.RowsAffected()
-	if rows > 0 {
-		return false, nil // updated existing device
-	}
-
-	// No existing device — INSERT new row
+	// Upsert: INSERT if new, UPDATE online if exists.
+	// IMPORTANT: requires UNIQUE index on no_sn column for ON DUPLICATE KEY to work.
+	// Run: ALTER TABLE devices ADD UNIQUE INDEX idx_no_sn (no_sn);
 	_, err = s.Adms.Exec(
-		"INSERT INTO devices (no_sn, online, created_at, updated_at) VALUES (?, NOW(), NOW(), NOW())",
+		"INSERT INTO devices (no_sn, online, created_at, updated_at) VALUES (?, NOW(), NOW(), NOW()) ON DUPLICATE KEY UPDATE online = NOW(), updated_at = NOW()",
 		sn)
-	if err != nil {
-		return false, err
-	}
-	return true, nil // new device registered
+	return isNew, err
 }
 
 // ─── Device log queries ──────────────────────────────────────────
@@ -151,10 +144,10 @@ func (s *Store) CountAttendances(sn, start, end string) (int, error) {
 	return count, err
 }
 
-// GetDeviceList returns all devices for filter dropdown
+// GetDeviceList returns distinct device SNs from attendance records for filter dropdown
 func (s *Store) GetDeviceList() ([]Device, error) {
 	var devices []Device
-	err := s.Adms.Select(&devices, "SELECT id, nama, no_sn, lokasi, online, created_at, updated_at FROM devices ORDER BY no_sn")
+	err := s.Adms.Select(&devices, "SELECT DISTINCT sn AS no_sn FROM attendances ORDER BY sn")
 	return devices, err
 }
 

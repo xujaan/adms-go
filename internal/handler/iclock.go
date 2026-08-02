@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -28,6 +29,7 @@ func (h *IClockHandler) Handshake(w http.ResponseWriter, r *http.Request) {
 
 	isNew, err := h.Store.UpsertDeviceOnline(sn)
 	if err != nil {
+		log.Printf("upsert device %q: %v", sn, err)
 		_ = h.Store.InsertErrorLog(fmt.Sprintf("upsert device: %v", err))
 	}
 
@@ -119,16 +121,19 @@ func (h *IClockHandler) ReceiveRecords(w http.ResponseWriter, r *http.Request) {
 	}
 
 	records := iclock.ParseRecords(bodyStr)
+	log.Printf("iclock POST: sn=%s table=%s records=%d", sn, table, len(records))
 	total := 0
 
 	for _, rec := range records {
 		att, err := parseAttendanceRecord(rec, sn, table, stamp)
 		if err != nil {
+			log.Printf("iclock parse error: %v | rec: %+v", err, rec)
 			_ = h.Store.InsertErrorLog(fmt.Sprintf("parse: %v | rec: %+v", err, rec))
 			continue
 		}
 
 		if err := h.Store.InsertAttendance(att); err != nil {
+			log.Printf("iclock insert error: %v | att: %+v", err, att)
 			_ = h.Store.InsertErrorLog(fmt.Sprintf("insert: %v | att: %+v", err, att))
 			continue
 		}
@@ -146,6 +151,7 @@ func (h *IClockHandler) ReceiveRecords(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	log.Printf("iclock POST done: sn=%s inserted=%d", sn, total)
 	w.Write([]byte(fmt.Sprintf("OK: %d", total)))
 }
 
