@@ -7,6 +7,7 @@ RUN CGO_ENABLED=0 go build -o /server ./cmd/server/
 
 FROM scratch
 COPY --from=alpine:latest /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=alpine:latest /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /server /server
 COPY templates /templates
 COPY static /static

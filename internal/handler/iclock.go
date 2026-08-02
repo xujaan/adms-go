@@ -197,9 +197,13 @@ func parseAttendanceRecord(rec iclock.Record, sn, table, stamp string) (*store.A
 		return nil, fmt.Errorf("employee_id %q: %w", rec.EmployeeID, err)
 	}
 
+	// Try standard format, then without space (some devices omit it)
 	ts, err := time.Parse("2006-01-02 15:04:05", rec.Timestamp)
 	if err != nil {
-		return nil, fmt.Errorf("timestamp %q: %w", rec.Timestamp, err)
+		ts, err = time.Parse("2006-01-0215:04:05", rec.Timestamp)
+		if err != nil {
+			return nil, fmt.Errorf("timestamp %q: %w", rec.Timestamp, err)
+		}
 	}
 
 	return &store.Attendance{

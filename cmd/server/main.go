@@ -62,7 +62,15 @@ func main() {
 		log.Fatalf("database: %v", err)
 	}
 	defer db.Close()
-	log.Println("Database connected")
+	// Log database name only (hide credentials)
+	dbName := cfg.DBAdmsDSN
+	if idx := strings.Index(dbName, "/"); idx >= 0 {
+		dbName = dbName[idx+1:]
+		if q := strings.Index(dbName, "?"); q >= 0 {
+			dbName = dbName[:q]
+		}
+	}
+	log.Printf("Database connected: %s", dbName)
 
 	// Templates
 	tmpl := template.New("").Funcs(template.FuncMap{
