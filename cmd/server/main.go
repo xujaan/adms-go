@@ -37,7 +37,7 @@ func loadConfig() Config {
 
 	dbAdmsDSN := os.Getenv("DB_ADMS_DSN")
 	if dbAdmsDSN == "" {
-		dbAdmsDSN = "root:@tcp(127.0.0.1:3306)/java_adms?parseTime=true"
+		dbAdmsDSN = "root:@tcp(127.0.0.1:3306)/java_adms?parseTime=true&loc=Asia%2FJakarta"
 	}
 
 	adminUser := os.Getenv("ADMIN_USER")

@@ -6,6 +6,7 @@
     --app-card: #ffffff;
     --app-border: #e2e8f0;
     --app-nav: #ffffff;
+    --app-text: #0f172a;
     --app-pre-bg: #f1f5f9;
     --app-pre-color: #334155;
 }
@@ -15,6 +16,7 @@
     --app-card: #0a0a0a;
     --app-border: #1a1a1a;
     --app-nav: #000;
+    --app-text: #f1f5f9;
     --app-pre-bg: #0a0a0a;
     --app-pre-color: #e0e0e0;
 }
@@ -23,9 +25,13 @@ body { background-color: var(--app-bg); }
 .card { background-color: var(--app-card); border-color: var(--app-border); }
 .table { --bs-table-bg: transparent; }
 .navbar { background-color: var(--app-nav) !important; border-bottom: 1px solid var(--app-border); }
+.navbar .nav-link, .navbar .navbar-brand { color: var(--app-text) !important; }
+.navbar .nav-link:hover { opacity: 0.7; }
+.navbar .text-danger.nav-link { color: #ef4444 !important; }
 .page-link { background-color: var(--app-card); border-color: var(--app-border); }
 .page-link:hover { background-color: var(--app-border); }
 pre { background: var(--app-pre-bg); color: var(--app-pre-color); white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto; }
+.nav-clock { color: var(--app-text); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 .btn {
     border: none;
