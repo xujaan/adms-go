@@ -18,6 +18,10 @@ import (
 	chimw "github.com/go-chi/chi/v5/middleware"
 )
 
+// version is set at build time via -ldflags
+// e.g.: go build -ldflags "-X main.version=$(git rev-parse --short HEAD)"
+var version = "dev"
+
 type Config struct {
 	Port      string
 	DBAdmsDSN string
@@ -71,6 +75,7 @@ func main() {
 		}
 	}
 	log.Printf("Database connected: %s", dbName)
+	log.Printf("version=%s", version)
 
 	// Templates
 	tmpl := template.New("").Funcs(template.FuncMap{
