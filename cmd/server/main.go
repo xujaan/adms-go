@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"adms-go/internal/handler"
 	"adms-go/internal/middleware"
@@ -111,10 +112,15 @@ func main() {
 	r.Use(chimw.Recoverer)
 	r.Use(chimw.RealIP)
 
-	// Static files
-	staticDir := filepath.Join(".", "static")
+	// Static files — must be before auth middleware
+	staticDir, _ := filepath.Abs(filepath.Join(".", "static"))
 	log.Printf("Serving static files from %s", staticDir)
-	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir(staticDir))))
+	fs := http.FileServer(http.Dir(staticDir))
+	// Serve /static/* files (custom.css, theme.js)
+	r.Get("/static/*", func(w http.ResponseWriter, r *http.Request) {
+		r.URL.Path = strings.TrimPrefix(r.URL.Path, "/static")
+		fs.ServeHTTP(w, r)
+	})
 
 	// IClock routes — no middleware, no auth (ZKTeco devices)
 	r.Route("/iclock", func(r chi.Router) {
