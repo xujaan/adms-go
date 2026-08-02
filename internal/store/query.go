@@ -21,17 +21,27 @@ func (s *Store) CountDevices() (int, error) {
 }
 
 func (s *Store) UpsertDeviceOnline(sn string) (isNew bool, err error) {
-	// Check if device exists first
-	var count int
-	if err := s.Adms.Get(&count, "SELECT COUNT(*) FROM devices WHERE no_sn = ?", sn); err != nil {
+	// Try UPDATE first — works without UNIQUE constraint
+	result, err := s.Adms.Exec(
+		"UPDATE devices SET online = NOW(), updated_at = NOW() WHERE no_sn = ?",
+		sn)
+	if err != nil {
 		return false, err
 	}
-	isNew = count == 0
 
+	rows, _ := result.RowsAffected()
+	if rows > 0 {
+		return false, nil // updated existing device
+	}
+
+	// No existing device — INSERT new row
 	_, err = s.Adms.Exec(
-		"INSERT INTO devices (no_sn, online, created_at, updated_at) VALUES (?, NOW(), NOW(), NOW()) ON DUPLICATE KEY UPDATE online = NOW(), updated_at = NOW()",
+		"INSERT INTO devices (no_sn, online, created_at, updated_at) VALUES (?, NOW(), NOW(), NOW())",
 		sn)
-	return isNew, err
+	if err != nil {
+		return false, err
+	}
+	return true, nil // new device registered
 }
 
 // ─── Device log queries ──────────────────────────────────────────
