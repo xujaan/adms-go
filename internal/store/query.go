@@ -168,11 +168,15 @@ func (s *Store) GetDeviceList() ([]Device, error) {
 
 func (s *Store) InsertAttendance(att *Attendance) error {
 	result, err := s.Adms.Exec(
-		"INSERT INTO attendances (sn, `table`, stamp, employee_id, timestamp, status1, status2, status3, status4, status5, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
+		"INSERT IGNORE INTO attendances (sn, `table`, stamp, employee_id, timestamp, status1, status2, status3, status4, status5, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
 		att.SN, att.TableName, att.Stamp, att.EmployeeID, att.Timestamp, att.Status1, att.Status2, att.Status3, att.Status4, att.Status5)
 	if err != nil {
 		log.Printf("store: insert attendance sn=%q emp=%d error: %v", att.SN, att.EmployeeID, err)
 		return err
+	}
+	if rows, _ := result.RowsAffected(); rows == 0 {
+		log.Printf("store: insert attendance skipped (duplicate) sn=%q emp=%d ts=%s", att.SN, att.EmployeeID, att.Timestamp.Format("2006-01-02 15:04:05"))
+		return nil
 	}
 	id, _ := result.LastInsertId()
 	att.ID = id

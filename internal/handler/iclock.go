@@ -137,6 +137,9 @@ func (h *IClockHandler) ReceiveRecords(w http.ResponseWriter, r *http.Request) {
 			_ = h.Store.InsertErrorLog(fmt.Sprintf("insert: %v | att: %+v", err, att))
 			continue
 		}
+		if att.ID == 0 {
+			continue // duplicate, skipped by INSERT IGNORE
+		}
 		total++
 
 		// Webhook: attendance event
@@ -162,6 +165,12 @@ func (h *IClockHandler) TestHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *IClockHandler) GetRequestHandler(w http.ResponseWriter, r *http.Request) {
+	sn := r.URL.Query().Get("SN")
+	if sn != "" {
+		if _, err := h.Store.UpsertDeviceOnline(sn); err != nil {
+			log.Printf("getrequest upsert %q: %v", sn, err)
+		}
+	}
 	w.Write([]byte("OK"))
 }
 
