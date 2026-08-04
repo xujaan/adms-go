@@ -200,16 +200,19 @@ func boolToInt(b bool) string {
 	return "0"
 }
 
+// jakartaLoc is used to parse device timestamps which are already in WIB
+var jakartaLoc, _ = time.LoadLocation("Asia/Jakarta")
+
 func parseAttendanceRecord(rec iclock.Record, sn, table, stamp string) (*store.Attendance, error) {
 	employeeID, err := strconv.Atoi(rec.EmployeeID)
 	if err != nil {
 		return nil, fmt.Errorf("employee_id %q: %w", rec.EmployeeID, err)
 	}
 
-	// Try standard format, then without space (some devices omit it)
-	ts, err := time.Parse("2006-01-02 15:04:05", rec.Timestamp)
+	// Parse in Asia/Jakarta — device sends local time, NOT UTC
+	ts, err := time.ParseInLocation("2006-01-02 15:04:05", rec.Timestamp, jakartaLoc)
 	if err != nil {
-		ts, err = time.Parse("2006-01-0215:04:05", rec.Timestamp)
+		ts, err = time.ParseInLocation("2006-01-0215:04:05", rec.Timestamp, jakartaLoc)
 		if err != nil {
 			return nil, fmt.Errorf("timestamp %q: %w", rec.Timestamp, err)
 		}
